@@ -3,8 +3,15 @@
 
 Open-WBO is an extensible and modular open-source MaxSAT Solver.
 Open-WBO was one of the best solvers in the partial MaxSAT categories at 
-MaxSAT Evaluations 2014, 2015 and 2016 and in the decision and optimization 
-for SMALLINT categories at PB Evaluation 2016.
+MaxSAT Evaluations 2014, 2015, 2016 and 2017 and in the decision and 
+optimization for SMALLINT categories at PB Evaluation 2016.
+
+### MaxSAT Evaluation 2017
+# Open-WBO-RES (winner of the unweighted track of the MaxSAT Evaluation 2017)
+./open-wbo <input-file>
+
+# Open-WBO-LSU
+./open-wbo -algorithm=1 <input-file>
 
 Usage of the solver:
 ./open-wbo [options] <input-file>
