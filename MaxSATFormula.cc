@@ -108,8 +108,9 @@ int MaxSATFormula::nHard() {
   return n_hard;
 } // Returns the number of hard clauses in the working MaxSAT formula.
 
-void MaxSATFormula::newVar() {
-  n_vars++;
+void MaxSATFormula::newVar(int v) {
+  if(v == -1) n_vars++;
+  else if(v > n_vars) n_vars = v;
 } // Increases the number of variables in the working MaxSAT formula.
 
 // Makes a new literal to be used in the working MaxSAT formula.

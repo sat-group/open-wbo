@@ -124,7 +124,7 @@ public:
   int nVars();   // Number of variables.
   int nSoft();   // Number of soft clauses.
   int nHard();   // Number of hard clauses.
-  void newVar(); // New variable.
+  void newVar(int v = -1); // New variable. Set to the given value.
 
   Lit newLiteral(bool sign = false); // Make a new literal.
 
