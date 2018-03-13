@@ -40,7 +40,7 @@ enum {
   _ALGORITHM_OLL_,
   _ALGORITHM_BEST_
 };
-enum {
+enum StatusCode {
   _SATISFIABLE_ = 10,
   _UNSATISFIABLE_ = 20,
   _OPTIMUM_ = 30,

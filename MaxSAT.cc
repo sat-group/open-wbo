@@ -408,6 +408,8 @@ void MaxSAT::printAnswer(int type) {
   if (type == _UNKNOWN_ && model.size() > 0)
     type = _SATISFIABLE_;
 
+  // store type in member variable
+  searchStatus = (StatusCode)type;
   if(!print) return;
 
   switch (type) {

@@ -58,8 +58,11 @@ namespace openwbo {
 class MaxSAT {
 
 public:
+
   MaxSAT(MaxSATFormula *mx) {
     maxsat_formula = mx;
+
+    searchStatus = _UNKNOWN_;
 
     // 'ubCost' will be set to the sum of the weights of soft clauses
     //  during the parsing of the MaxSAT formula.
@@ -80,6 +83,8 @@ public:
 
   MaxSAT() {
     maxsat_formula = NULL;
+
+    searchStatus = _UNKNOWN_;
 
     // 'ubCost' will be set to the sum of the weights of soft clauses
     //  during the parsing of the MaxSAT formula.
@@ -173,6 +178,7 @@ protected:
   // Properties of the MaxSAT formula
   //
   vec<lbool> model; // Stores the best satisfying model.
+  StatusCode searchStatus; // Stores the current state of the formula
 
   // Statistics
   //
