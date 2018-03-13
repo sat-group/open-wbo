@@ -75,6 +75,7 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
+    print = false;
   }
 
   MaxSAT() {
@@ -94,6 +95,7 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
+    print = false;
   }
 
   virtual ~MaxSAT() {
@@ -155,6 +157,9 @@ public:
   void setPrintModel(bool model) { print_model = model; }
   bool getPrintModel() { return print_model; }
 
+  void setPrint(bool doPrint) { print = doPrint; }
+  bool getPrint() { return print; }
+
 protected:
   // Interface with the SAT solver
   //
@@ -189,6 +194,7 @@ protected:
   double initialTime; // Initial time.
   int verbosity;      // Controls the verbosity of the solver.
   bool print_model;   // Controls if the model is printed at the end.
+  bool print;         // Controls if data should be printed at all
 
   // Different weights that corresponds to each function in the BMO algorithm.
   std::vector<uint64_t> orderWeights;

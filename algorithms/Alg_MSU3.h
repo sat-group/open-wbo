@@ -63,6 +63,8 @@ public:
   // Print solver configuration.
   void printConfiguration() {
 
+    if(!print) return;
+
     printf("c ==========================================[ Solver Settings "
            "]============================================\n");
     printf("c |                                                                "

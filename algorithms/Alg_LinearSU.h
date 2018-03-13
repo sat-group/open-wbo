@@ -73,6 +73,8 @@ public:
   // Print solver configuration.
   void printConfiguration(bool bmo, int ptype) {
 
+    if(!print) return;
+
     printf("c ==========================================[ Solver Settings "
            "]============================================\n");
     printf("c |                                                                "

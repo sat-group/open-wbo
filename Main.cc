@@ -294,6 +294,7 @@ int main(int argc, char **argv) {
     S->setPrintModel(printmodel);
     S->setInitialTime(initial_time);
     mxsolver = S;
+    mxsolver->setPrint(true);
     mxsolver->search();
 
   } catch (OutOfMemoryException &) {

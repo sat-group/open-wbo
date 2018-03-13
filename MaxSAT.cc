@@ -332,6 +332,8 @@ void MaxSAT::blockModel(Solver *solver) {
 
 void MaxSAT::printBound(int64_t bound)
 {
+  if(!print) return;
+
   // print bound only, if its below the hard weight
   if( bound < (int64_t)maxsat_formula->getHardWeight() ) printf("o %" PRId64 "\n", bound);
 }
@@ -400,11 +402,13 @@ void MaxSAT::printStats() {
 
 // Prints the corresponding answer.
 void MaxSAT::printAnswer(int type) {
-  if (verbosity > 0)
+  if (verbosity > 0 && print)
     printStats();
 
   if (type == _UNKNOWN_ && model.size() > 0)
     type = _SATISFIABLE_;
+
+  if(!print) return;
 
   switch (type) {
   case _SATISFIABLE_:
