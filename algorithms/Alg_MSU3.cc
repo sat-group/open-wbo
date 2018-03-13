@@ -85,7 +85,7 @@ void MSU3::MSU3_iterative() {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       saveModel(solver->model);
-      printf("o %" PRIu64 "\n", newCost);
+      printBound(newCost);
 
       ubCost = newCost;
 

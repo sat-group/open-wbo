@@ -330,6 +330,12 @@ void MaxSAT::blockModel(Solver *solver) {
   solver->addClause(blocking);
 }
 
+void MaxSAT::printBound(int64_t bound)
+{
+  // print bound only, if its below the hard weight
+  if( bound < (int64_t)maxsat_formula->getHardWeight() ) printf("o %" PRId64 "\n", bound);
+}
+
 // Prints the best satisfying model. Assumes that 'model' is not empty.
 void MaxSAT::printModel() {
 

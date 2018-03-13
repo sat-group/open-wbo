@@ -128,10 +128,10 @@ void OLL::unweighted() {
       if (maxsat_formula->getFormat() == _FORMAT_PB_) {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", newCost + off_set);
+          printBound(newCost + off_set);
         }
       } else
-        printf("o %" PRId64 "\n", newCost + off_set);
+        printBound(newCost + off_set);
 
       ubCost = newCost;
 
@@ -327,10 +327,10 @@ void OLL::weighted() {
         if (maxsat_formula->getFormat() == _FORMAT_PB_) {
           // optimization problem
           if (maxsat_formula->getObjFunction() != NULL) {
-            printf("o %" PRId64 "\n", newCost + off_set);
+            printBound(newCost + off_set);
           }
         } else
-          printf("o %" PRId64 "\n", newCost + off_set);
+          printBound(newCost + off_set);
         ubCost = newCost;
       }
 

@@ -202,6 +202,7 @@ protected:
 
   // Utils for printing
   //
+  void printBound(int64_t bound); // Print the current bound.
   void printModel(); // Print the best satisfying model.
   void printStats(); // Print search statistics.
 

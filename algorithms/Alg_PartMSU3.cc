@@ -509,7 +509,7 @@ void PartMSU3::PartMSU3_sequential() {
       uint64_t newCost = computeCostModel(solver->model);
       if (nbSatisfiable == 1 || newCost < ubCost) {
         saveModel(solver->model);
-        printf("o %" PRIu64 "\n", newCost);
+        printBound(newCost);
         ubCost = newCost;
       }
 
@@ -707,7 +707,7 @@ void PartMSU3::PartMSU3_binary() {
       uint64_t newCost = computeCostModel(solver->model);
       if (nbSatisfiable == 1 || newCost < ubCost) {
         saveModel(solver->model);
-        printf("o %" PRIu64 "\n", newCost);
+        printBound(newCost);
         ubCost = newCost;
       }
 
