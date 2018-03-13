@@ -35,7 +35,7 @@ using namespace openwbo;
  //
  ************************************************************************************************/
 
-void MaxSAT::search() {
+StatusCode MaxSAT::search() {
   printf("Error: Invalid MaxSAT algoritm.\n");
   exit(_ERROR_);
 }

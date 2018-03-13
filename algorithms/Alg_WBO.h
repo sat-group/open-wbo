@@ -65,7 +65,7 @@ public:
       delete solver;
   }
 
-  void search(); // WBO search.
+  StatusCode search(); // WBO search.
 
 protected:
   // Rebuild MaxSAT solver
@@ -97,9 +97,9 @@ protected:
 
   // WBO search
   //
-  void unsatSearch();  // Search using only hard clauses.
-  void weightSearch(); // Search using weight-based methods.
-  void normalSearch(); // Original WBO search.
+  StatusCode unsatSearch();  // Search using only hard clauses.
+  StatusCode weightSearch(); // Search using weight-based methods.
+  StatusCode normalSearch(); // Original WBO search.
 
   // Other
   // Initializes assumptions and core extraction.

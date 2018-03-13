@@ -105,7 +105,7 @@ public:
     }
   }
 
-  void search();
+  StatusCode search();
 
   // Print solver configuration.
   void printConfiguration() {
@@ -137,9 +137,9 @@ protected:
   //
   Solver *rebuildSolver(); // Rebuild MaxSAT solver.
 
-  void PartMSU3_sequential(); // MSU3 that merges partitions sequentially into a
+  StatusCode PartMSU3_sequential(); // MSU3 that merges partitions sequentially into a
                               // single partition
-  void PartMSU3_binary(); // MSU3 that uses a binary tree to guide the partition
+  StatusCode PartMSU3_binary(); // MSU3 that uses a binary tree to guide the partition
                           // merging process
 
   // Heuristics

@@ -468,7 +468,7 @@ void PartMSU3::sortPartitions(vec<int> &out_parts) {
   }
 }
 
-void PartMSU3::PartMSU3_sequential() {
+StatusCode PartMSU3::PartMSU3_sequential() {
   // nbInitialVariables = nVars();
   lbool res = l_True;
   vec<Lit> assumptions;
@@ -536,7 +536,7 @@ void PartMSU3::PartMSU3_sequential() {
               true; // to know that unit partitions are being considered
         } else {
           printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          return _OPTIMUM_;
         }
       } else {
         assert(merge_strategy == _PART_SEQUENTIAL_SORTED_);
@@ -557,7 +557,7 @@ void PartMSU3::PartMSU3_sequential() {
           }
         } else {
           printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          return _OPTIMUM_;
         }
       }
     }
@@ -570,7 +570,7 @@ void PartMSU3::PartMSU3_sequential() {
 
       if (nbSatisfiable == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       if (lbCost == ubCost) {
@@ -578,14 +578,14 @@ void PartMSU3::PartMSU3_sequential() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       sumSizeCores += solver->conflict.size();
 
       if (solver->conflict.size() == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       joinObjFunction.clear();
@@ -665,7 +665,7 @@ void PartMSU3::PartMSU3_sequential() {
   }
 }
 
-void PartMSU3::PartMSU3_binary() {
+StatusCode PartMSU3::PartMSU3_binary() {
 
   int nrelaxed = 0;
   // nbInitialVariables = nVars();
@@ -832,7 +832,7 @@ void PartMSU3::PartMSU3_binary() {
       } else {
         assert(guide_tree.empty());
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
     }
 
@@ -845,7 +845,7 @@ void PartMSU3::PartMSU3_binary() {
 
       if (nbSatisfiable == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       if (lbCost == ubCost) {
@@ -853,14 +853,14 @@ void PartMSU3::PartMSU3_binary() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       sumSizeCores += solver->conflict.size();
 
       if (solver->conflict.size() == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       joinObjFunction.clear();
@@ -921,7 +921,7 @@ void PartMSU3::PartMSU3_binary() {
   }
 }
 
-void PartMSU3::search() {
+StatusCode PartMSU3::search() {
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
     printf("Error: Currently algorithm MSU3 does not support weighted MaxSAT "
            "instances.\n");
@@ -939,13 +939,13 @@ void PartMSU3::search() {
 
     switch (merge_strategy) {
     case _PART_SEQUENTIAL_:
-      PartMSU3_sequential();
+      return PartMSU3_sequential();
       break;
     case _PART_SEQUENTIAL_SORTED_:
-      PartMSU3_sequential();
+      return PartMSU3_sequential();
       break;
     case _PART_BINARY_:
-      PartMSU3_binary();
+      return PartMSU3_binary();
       break;
     default:
       printf("Error: No partition merging strategy.\n");

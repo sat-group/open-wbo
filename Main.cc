@@ -295,8 +295,10 @@ int main(int argc, char **argv) {
     S->setInitialTime(initial_time);
     mxsolver = S;
     mxsolver->setPrint(true);
-    mxsolver->search();
 
+    int ret = (int)mxsolver->search();
+    delete S;
+    return ret;
   } catch (OutOfMemoryException &) {
     sleep(1);
     printf("c Error: Out of memory.\n");

@@ -97,7 +97,7 @@ uint64_t OLL::findNextWeightDiversity(uint64_t weight,
   return nextWeight;
 }
 
-void OLL::unweighted() {
+StatusCode OLL::unweighted() {
   // printf("unweighted\n");
 
   // nbInitialVariables = nVars();
@@ -140,10 +140,10 @@ void OLL::unweighted() {
           if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
               maxsat_formula->getObjFunction() == NULL) {
             printAnswer(_SATISFIABLE_);
-            exit(_SATISFIABLE_);
+            return _SATISFIABLE_;
           } else {
             printAnswer(_OPTIMUM_);
-            exit(_OPTIMUM_);
+            return _OPTIMUM_;
           }
         }
 
@@ -152,7 +152,7 @@ void OLL::unweighted() {
       } else {
         assert(lbCost == newCost);
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
     }
 
@@ -164,7 +164,7 @@ void OLL::unweighted() {
 
       if (nbSatisfiable == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       if (lbCost == ubCost) {
@@ -172,7 +172,7 @@ void OLL::unweighted() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       sumSizeCores += solver->conflict.size();
@@ -294,7 +294,7 @@ void OLL::unweighted() {
   }
 }
 
-void OLL::weighted() {
+StatusCode OLL::weighted() {
   // nbInitialVariables = nVars();
   lbool res = l_True;
   initRelaxation();
@@ -395,7 +395,7 @@ void OLL::weighted() {
         } else {
           assert(lbCost == newCost);
           printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          return _OPTIMUM_;
         }
       }
     }
@@ -432,7 +432,7 @@ void OLL::weighted() {
 
       if (nbSatisfiable == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       if (lbCost == ubCost) {
@@ -440,7 +440,7 @@ void OLL::weighted() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       sumSizeCores += solver->conflict.size();
@@ -756,7 +756,7 @@ void OLL::weighted() {
   }
 }
 
-void OLL::search() {
+StatusCode OLL::search() {
 
   if (encoding != _CARD_TOTALIZER_) {
     printf("Error: Currently algorithm MSU3 with iterative encoding only "
@@ -769,9 +769,9 @@ void OLL::search() {
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
     // FIXME: consider lexicographical optimization for weighted problems
-    weighted();
+    return weighted();
   } else
-    unweighted();
+    return unweighted();
 }
 
 /************************************************************************************************

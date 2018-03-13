@@ -122,7 +122,7 @@ public:
   // Incremental information.
   void print_Incremental_configuration(int incremental);
 
-  virtual void search();      // MaxSAT search.
+  virtual StatusCode search();      // MaxSAT search.
   void printAnswer(int type); // Print the answer.
 
   // Tests if a MaxSAT formula has a lexicographical optimization criterion.
