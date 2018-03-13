@@ -165,6 +165,27 @@ public:
   void setPrint(bool doPrint) { print = doPrint; }
   bool getPrint() { return print; }
 
+  /** return status of current search
+   *
+   *  This method helps to extract the status in case the solver is used as a
+   *  library object without printing solutions.
+   */
+  StatusCode getStatus() { return searchStatus; }
+
+  /** return truth values for variables
+   *
+   *  This method returns the truth value for a variable in the internal
+   *  format. However, the return value reflects the external format, e.g.
+   *  getValue(0) will return 1 or -1, depending on the sign of the variable
+   *  in the model.
+   */
+  int getValue(const NSPACE::Var v)
+  {
+    if (v > model.size()) return 0;
+    if (model[v] == l_True) return v+1;
+    return -(int)v - 1;
+  }
+
 protected:
   // Interface with the SAT solver
   //
