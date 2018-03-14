@@ -59,10 +59,13 @@ using namespace openwbo;
 StatusCode MSU3::MSU3_iterative() {
 
   if (encoding != _CARD_TOTALIZER_) {
-    printf("Error: Currently algorithm MSU3 with iterative encoding only "
-           "supports the totalizer encoding.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: Currently algorithm MSU3 with iterative encoding only "
+             "supports the totalizer encoding.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "MSU3 only supports totalizer");
+    return _UNKNOWN_;
   }
 
   lbool res = l_True;
@@ -176,18 +179,24 @@ StatusCode MSU3::MSU3_iterative() {
 StatusCode MSU3::search() {
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    printf("Error: Currently algorithm MSU3 does not support weighted MaxSAT "
-           "instances.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: Currently algorithm MSU3 does not support weighted "
+             "MaxSAT instances.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "MSU3 does not support weighted");
+    return _UNKNOWN_;
   }
 
   if (incremental_strategy == _INCREMENTAL_ITERATIVE_) {
     if (encoding != _CARD_TOTALIZER_) {
-      printf("Error: Currently iterative encoding in PartMSU3 only "
+      if(print) {
+        printf("Error: Currently iterative encoding in PartMSU3 only "
              "supports the Totalizer encoding.\n");
-      printf("s UNKNOWN\n");
-      exit(_ERROR_);
+        printf("s UNKNOWN\n");
+      }
+      throw MaxSATException(__FILE__, __LINE__, "PartMSU3 only supports Totalizer");
+      return _UNKNOWN_;
     }
   }
 

@@ -304,5 +304,10 @@ int main(int argc, char **argv) {
     printf("c Error: Out of memory.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
+  } catch(MaxSATException &e) {
+    sleep(1);
+    printf("c Error: MaxSAT Exception: %s\n", e.getMsg());
+    printf("s UNKNOWN\n");
+    exit(_ERROR_);
   }
 }

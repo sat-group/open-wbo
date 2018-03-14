@@ -759,10 +759,13 @@ StatusCode OLL::weighted() {
 StatusCode OLL::search() {
 
   if (encoding != _CARD_TOTALIZER_) {
-    printf("Error: Currently algorithm MSU3 with iterative encoding only "
-           "supports the totalizer encoding.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: Currently algorithm MSU3 with iterative encoding only "
+             "supports the totalizer encoding.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "MSU3 only supports totalizer");
+    return _UNKNOWN_;
   }
 
   printConfiguration();

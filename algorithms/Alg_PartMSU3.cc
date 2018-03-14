@@ -923,18 +923,24 @@ StatusCode PartMSU3::PartMSU3_binary() {
 
 StatusCode PartMSU3::search() {
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    printf("Error: Currently algorithm MSU3 does not support weighted MaxSAT "
-           "instances.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: Currently algorithm MSU3 does not support weighted MaxSAT "
+             "instances.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "MSU3 does not support weighted");
+    return _UNKNOWN_;
   }
 
   if (incremental_strategy == _INCREMENTAL_ITERATIVE_) {
     if (encoding != _CARD_TOTALIZER_) {
-      printf("Error: Currently iterative encoding in PartMSU3 only "
-             "supports the Totalizer encoding.\n");
-      printf("s UNKNOWN\n");
-      exit(_ERROR_);
+      if(print) {
+        printf("Error: Currently iterative encoding in PartMSU3 only "
+               "supports the Totalizer encoding.\n");
+        printf("s UNKNOWN\n");
+      }
+      throw MaxSATException(__FILE__, __LINE__, "MSU3 only supports totalizer");
+      return _UNKNOWN_;
     }
 
     switch (merge_strategy) {
@@ -948,14 +954,20 @@ StatusCode PartMSU3::search() {
       return PartMSU3_binary();
       break;
     default:
-      printf("Error: No partition merging strategy.\n");
-      printf("s UNKNOWN\n");
-      exit(_ERROR_);
+      if(print) {
+        printf("Error: No partition merging strategy.\n");
+        printf("s UNKNOWN\n");
+      }
+      throw MaxSATException(__FILE__, __LINE__, "No partition merging strategy");
+      return _UNKNOWN_;
     }
   } else {
-    printf("Error: No incremental strategy.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: No incremental strategy.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "No incremental strategy");
+    return _UNKNOWN_;
   }
 }
 
