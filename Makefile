@@ -26,4 +26,10 @@ CFLAGS     += -DGLUCORED
 DEPDIR     += reducer glucored
 endif
 endif
+
+# Riss does not have a template.mk file any more
+ifeq ($(SOLVERDIR),riss)
+include $(PWD)/mtl/template.mk
+else
 include $(MROOT)/mtl/template.mk
+endif
