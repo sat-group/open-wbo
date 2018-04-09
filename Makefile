@@ -1,19 +1,15 @@
+# Define which solver to use as backend, this can be a name of a file in the
+# solvers directory.
+SOLVER     ?= glucose4.1
+#
+# The following values should be defined in the included file:
 # VERSION    = core or simp 
 # SOLVERNAME = name of the SAT solver
 # SOLVERDIR  = subdirectory of the SAT solver
 # NSPACE     = namespace of the SAT solver
-# 
-# e.g. minisat compilation with core version:
 #
-# VERSION    = core
-# SOLVERNAME = "Minisat"
-# SOLVERDIR  = minisat
-# NSPACE     = Minisat
-#
-VERSION    = core
-SOLVERNAME = "Glucose4.1"
-SOLVERDIR  = glucose4.1
-NSPACE     = Glucose
+include $(PWD)/solvers/$(SOLVER).mk
+
 # THE REMAINING OF THE MAKEFILE SHOULD BE LEFT UNCHANGED
 EXEC       = open-wbo
 DEPDIR     = mtl utils core 
