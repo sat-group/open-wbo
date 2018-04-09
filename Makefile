@@ -12,11 +12,11 @@ include $(PWD)/solvers/$(SOLVER).mk
 
 # THE REMAINING OF THE MAKEFILE SHOULD BE LEFT UNCHANGED
 EXEC       = open-wbo
-DEPDIR     = mtl utils core 
+DEPDIR     += mtl utils core
 DEPDIR     +=  ../../encodings ../../algorithms ../../graph ../../classifier
-MROOT      = $(PWD)/solvers/$(SOLVERDIR)
+MROOT      ?= $(PWD)/solvers/$(SOLVERDIR)
 LFLAGS     += -lgmpxx -lgmp
-CFLAGS     = -Wall -Wno-parentheses -std=c++11 -DNSPACE=$(NSPACE) -DSOLVERNAME=$(SOLVERNAME) -DVERSION=$(VERSION)
+CFLAGS     += -Wall -Wno-parentheses -std=c++11 -DNSPACE=$(NSPACE) -DSOLVERNAME=$(SOLVERNAME) -DVERSION=$(VERSION)
 ifeq ($(VERSION),simp)
 DEPDIR     += simp
 CFLAGS     += -DSIMP=1 
