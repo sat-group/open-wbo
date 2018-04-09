@@ -1,0 +1,3 @@
+[submodule "riss"]
+	path = solvers/riss
+	url = https://github.com/conp-solutions/riss.git
