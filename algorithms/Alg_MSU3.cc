@@ -223,6 +223,8 @@ Solver *MSU3::rebuildSolver() {
 
   Solver *S = newSATSolver();
 
+  reserveSATVariables(S, maxsat_formula->nVars());
+
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);
 

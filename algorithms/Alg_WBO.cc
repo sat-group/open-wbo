@@ -68,6 +68,8 @@ Solver *WBO::rebuildWeightSolver(int strategy) {
 
   Solver *S = newSATSolver();
 
+  reserveSATVariables(S, maxsat_formula->nVars());
+
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);
 
@@ -150,6 +152,8 @@ Solver *WBO::rebuildSolver() {
 
   Solver *S = newSATSolver();
 
+  reserveSATVariables(S, maxsat_formula->nVars());
+
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);
 
@@ -220,6 +224,8 @@ Solver *WBO::rebuildSolver() {
 Solver *WBO::rebuildHardSolver() {
 
   Solver *S = newSATSolver();
+
+  reserveSATVariables(S, maxsat_formula->nVars());
 
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);
