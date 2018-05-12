@@ -73,6 +73,18 @@ void MaxSAT::newSATVariable(Solver *S) {
 #endif
 }
 
+// Makes sure the underlying SAT solver has the given amount of variables
+// reserved.
+void MaxSAT::reserveSATVariables(Solver *S, unsigned maxVariable) {
+#ifdef SAT_HAS_RESERVATION
+#ifdef SIMP
+  ((NSPACE::SimpSolver *)S)->reserveVars(maxVariable);
+#else
+  S->reserveVars(maxVariable);
+#endif
+#endif
+}
+
 // Solve the formula that is currently loaded in the SAT solver with a set of
 // assumptions and with the option to use preprocessing for 'simp'.
 lbool MaxSAT::searchSATSolver(Solver *S, vec<Lit> &assumptions, bool pre) {

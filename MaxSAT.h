@@ -196,6 +196,8 @@ protected:
 
   void newSATVariable(Solver *S); // Creates a new variable in the SAT solver.
 
+  void reserveSATVariables(Solver *S, unsigned maxVariable); // Reserve space for multiple variables in the SAT solver.
+
   // Properties of the MaxSAT formula
   //
   vec<lbool> model; // Stores the best satisfying model.
