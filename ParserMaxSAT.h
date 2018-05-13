@@ -36,6 +36,10 @@
 #include "core/SolverTypes.h"
 #include "utils/ParseUtils.h"
 
+#ifdef HAS_EXTRA_STREAMBUFFER
+#include "utils/StreamBuffer.h"
+#endif
+
 using NSPACE::mkLit;
 using NSPACE::StreamBuffer;
 
