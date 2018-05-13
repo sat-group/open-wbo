@@ -85,9 +85,9 @@ protected:
   // Utils for core management
   //
   void encodeEO(vec<Lit> &lits); // Encodes exactly one constraint.
-  void relaxCore(vec<Lit> &conflict, uint64_t weightCore,
+  void relaxCore(const vec<Lit> &conflict, uint64_t weightCore,
                  vec<Lit> &assumps);            // Relaxes a core.
-  uint64_t computeCostCore(vec<Lit> &conflict); // Computes the cost of a core.
+  uint64_t computeCostCore(const vec<Lit> &conflict); // Computes the cost of a core.
 
   // Symmetry breaking methods
   //

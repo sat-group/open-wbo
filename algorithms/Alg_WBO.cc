@@ -507,7 +507,7 @@ void WBO::encodeEO(vec<Lit> &lits) {
   |    * 'sumSizeCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void WBO::relaxCore(vec<Lit> &conflict, uint64_t weightCore,
+void WBO::relaxCore(const vec<Lit> &conflict, uint64_t weightCore,
                     vec<Lit> &assumps) {
 
   assert(conflict.size() > 0);
@@ -575,7 +575,7 @@ void WBO::relaxCore(vec<Lit> &conflict, uint64_t weightCore,
   |      * Assumes that 'conflict' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t WBO::computeCostCore(vec<Lit> &conflict) {
+uint64_t WBO::computeCostCore(const vec<Lit> &conflict) {
 
   assert(conflict.size() != 0);
 
