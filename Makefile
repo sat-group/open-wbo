@@ -27,8 +27,9 @@ DEPDIR     += reducer glucored
 endif
 endif
 
-# Riss does not have a template.mk file any more
-ifeq ($(SOLVERDIR),riss)
+# Some solvers do not have a template.mk file any more
+# E.g.: Minisat or Riss
+ifeq ($(SOLVERDIR),$(filter $(SOLVERDIR),minisat riss))
 include $(PWD)/mtl/template.mk
 else
 include $(MROOT)/mtl/template.mk
