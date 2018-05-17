@@ -108,7 +108,7 @@ static void parseMaxSAT(B &in, MaxSATFormula *maxsat_formula) {
       skipLine(in);
     else {
       uint64_t weight = readClause(in, maxsat_formula, lits);
-      if (weight != hard_weight ||
+      if (weight < hard_weight ||
           maxsat_formula->getProblemType() == _UNWEIGHTED_) {
         assert(weight > 0);
         // Updates the maximum weight of soft clauses.
