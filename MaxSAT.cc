@@ -27,6 +27,8 @@
 
 #include "MaxSAT.h"
 
+#include <sstream>
+
 using namespace openwbo;
 
 /************************************************************************************************
@@ -356,41 +358,28 @@ void MaxSAT::printModel() {
 
   assert(model.size() != 0);
 
-  if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+  std::stringstream s;
+  s << "v ";
 
-    printf("v ");
+  if (maxsat_formula->getFormat() == _FORMAT_PB_) {
     for (int i = 0; i < model.size(); i++) {
       indexMap::const_iterator iter = maxsat_formula->getIndexToName().find(i);
       if (iter != maxsat_formula->getIndexToName().end()) {
         if (model[i] == l_False)
-          printf("-");
-        printf("%s ", iter->second.c_str());
+          s << "-";
+        s << iter->second.c_str() << " ";
       }
     }
-    printf("\n");
-
-    // printf("v ");
-    // for (int i = 0; i < model.size(); i++) {
-    //   indexMap::const_iterator iter =
-    //   maxsat_formula->getIndexToName().find(i); if (iter !=
-    //   maxsat_formula->getIndexToName().end()) {
-    //     if (model[i] == l_False) printf("+1 %s = 0
-    //     ;\n",iter->second.c_str()); else printf("+1 %s = 1
-    //     ;\n",iter->second.c_str());
-    //   }
-    // }
-
   } else {
-
-    printf("v ");
     for (int i = 0; i < model.size(); i++) {
       if (model[i] == l_True)
-        printf("%d ", i + 1);
+        s << i+1 << " ";
       else
-        printf("%d ", -(i + 1));
+        s << -(i+1) << " ";
     }
-    printf("\n");
   }
+
+  printf("%s\n", s.str().c_str());
 }
 
 // Prints search statistics.
