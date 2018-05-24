@@ -28,6 +28,20 @@
 #ifndef MaxTypes_h
 #define MaxTypes_h
 
+#include <sstream>
+
+/** This class catches the exception that is used across the solver to indicate errors */
+class MaxSATException
+{
+  std::stringstream s;
+public:
+  MaxSATException(const char* file, const int line, const char* msg)
+  {
+    s << file << ":" << line << ":" << msg;
+  }
+  const char* getMsg() const {return s.str().c_str();}
+};
+
 enum { _FORMAT_MAXSAT_ = 0, _FORMAT_PB_ };
 enum { _VERBOSITY_MINIMAL_ = 0, _VERBOSITY_SOME_ };
 enum { _UNWEIGHTED_ = 0, _WEIGHTED_ };
@@ -40,7 +54,7 @@ enum {
   _ALGORITHM_OLL_,
   _ALGORITHM_BEST_
 };
-enum {
+enum StatusCode {
   _SATISFIABLE_ = 10,
   _UNSATISFIABLE_ = 20,
   _OPTIMUM_ = 30,

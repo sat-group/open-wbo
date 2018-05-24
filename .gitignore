@@ -1,0 +1,13 @@
+# Object files
+*.od
+*.or
+*.os
+*.o
+*.a
+depend.mk
+
+# Git merge files
+*.orig
+
+# backup files
+*~

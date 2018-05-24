@@ -58,8 +58,11 @@ namespace openwbo {
 class MaxSAT {
 
 public:
+
   MaxSAT(MaxSATFormula *mx) {
     maxsat_formula = mx;
+
+    searchStatus = _UNKNOWN_;
 
     // 'ubCost' will be set to the sum of the weights of soft clauses
     //  during the parsing of the MaxSAT formula.
@@ -75,11 +78,14 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
+    print = false;
   }
 
   MaxSAT() {
     maxsat_formula = NULL;
 
+    searchStatus = _UNKNOWN_;
+
     // 'ubCost' will be set to the sum of the weights of soft clauses
     //  during the parsing of the MaxSAT formula.
     ubCost = 0;
@@ -94,6 +100,7 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
+    print = false;
   }
 
   virtual ~MaxSAT() {
@@ -115,7 +122,7 @@ public:
   // Incremental information.
   void print_Incremental_configuration(int incremental);
 
-  virtual void search();      // MaxSAT search.
+  virtual StatusCode search();      // MaxSAT search.
   void printAnswer(int type); // Print the answer.
 
   // Tests if a MaxSAT formula has a lexicographical optimization criterion.
@@ -155,6 +162,30 @@ public:
   void setPrintModel(bool model) { print_model = model; }
   bool getPrintModel() { return print_model; }
 
+  void setPrint(bool doPrint) { print = doPrint; }
+  bool getPrint() { return print; }
+
+  /** return status of current search
+   *
+   *  This method helps to extract the status in case the solver is used as a
+   *  library object without printing solutions.
+   */
+  StatusCode getStatus() { return searchStatus; }
+
+  /** return truth values for variables
+   *
+   *  This method returns the truth value for a variable in the internal
+   *  format. However, the return value reflects the external format, e.g.
+   *  getValue(0) will return 1 or -1, depending on the sign of the variable
+   *  in the model.
+   */
+  int getValue(const NSPACE::Var v)
+  {
+    if (v > model.size()) return 0;
+    if (model[v] == l_True) return v+1;
+    return -(int)v - 1;
+  }
+
 protected:
   // Interface with the SAT solver
   //
@@ -165,9 +196,12 @@ protected:
 
   void newSATVariable(Solver *S); // Creates a new variable in the SAT solver.
 
+  void reserveSATVariables(Solver *S, unsigned maxVariable); // Reserve space for multiple variables in the SAT solver.
+
   // Properties of the MaxSAT formula
   //
   vec<lbool> model; // Stores the best satisfying model.
+  StatusCode searchStatus; // Stores the current state of the formula
 
   // Statistics
   //
@@ -189,6 +223,7 @@ protected:
   double initialTime; // Initial time.
   int verbosity;      // Controls the verbosity of the solver.
   bool print_model;   // Controls if the model is printed at the end.
+  bool print;         // Controls if data should be printed at all
 
   // Different weights that corresponds to each function in the BMO algorithm.
   std::vector<uint64_t> orderWeights;
@@ -202,6 +237,7 @@ protected:
 
   // Utils for printing
   //
+  void printBound(int64_t bound); // Print the current bound.
   void printModel(); // Print the best satisfying model.
   void printStats(); // Print search statistics.
 

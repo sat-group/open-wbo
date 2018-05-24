@@ -68,10 +68,12 @@ public:
     coeffs.clear();
   }
 
-  void search(); // Linear search.
+  StatusCode search(); // Linear search.
 
   // Print solver configuration.
   void printConfiguration(bool bmo, int ptype) {
+
+    if(!print) return;
 
     printf("c ==========================================[ Solver Settings "
            "]============================================\n");
@@ -96,8 +98,8 @@ protected:
 
   // Linear search algorithms.
   //
-  void normalSearch(); // Classic linear search algorithm.
-  void bmoSearch();    // Linear search algorithm with lexicographical order.
+  StatusCode normalSearch(); // Classic linear search algorithm.
+  StatusCode bmoSearch();    // Linear search algorithm with lexicographical order.
 
   // Greater than comparator.
   bool static greaterThan(int i, int j) { return (i > j); }

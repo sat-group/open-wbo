@@ -55,7 +55,7 @@ using namespace openwbo;
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU::bmoSearch() {
+StatusCode LinearSU::bmoSearch() {
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -89,7 +89,7 @@ void LinearSU::bmoSearch() {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
         saveModel(solver->model);
-        printf("o %" PRId64 "\n", newCost + lbCost + off_set);
+        printBound(newCost + lbCost + off_set);
         ubCost = newCost + lbCost;
       } else {
         if (verbosity > 0)
@@ -100,7 +100,7 @@ void LinearSU::bmoSearch() {
       if (newCost == 0 && currentWeight == minWeight) {
         // Optimum value has been found.
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       } else {
 
         if (newCost == 0) {
@@ -143,10 +143,10 @@ void LinearSU::bmoSearch() {
           assert(nbSatisfiable == 0);
           // If no model was found then the MaxSAT formula is unsatisfiable
           printAnswer(_UNSATISFIABLE_);
-          exit(_UNSATISFIABLE_);
+          return _UNSATISFIABLE_;
         } else {
           printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          return _OPTIMUM_;
         }
       } else {
 
@@ -193,7 +193,7 @@ void LinearSU::bmoSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU::normalSearch() {
+StatusCode LinearSU::normalSearch() {
 
   lbool res = l_True;
 
@@ -215,10 +215,10 @@ void LinearSU::normalSearch() {
       if (maxsat_formula->getFormat() == _FORMAT_PB_) {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", newCost + off_set);
+          printBound(newCost + off_set);
         }
       } else
-        printf("o %" PRId64 "\n", newCost + off_set);
+        printBound(newCost + off_set);
 
       if (newCost == 0) {
         // If there is a model with value 0 then it is an optimal model
@@ -227,10 +227,10 @@ void LinearSU::normalSearch() {
         if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
             maxsat_formula->getObjFunction() == NULL) {
           printAnswer(_SATISFIABLE_);
-          exit(_SATISFIABLE_);
+          return _SATISFIABLE_;
         } else {
           printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          return _OPTIMUM_;
         }
 
       } else {
@@ -255,17 +255,19 @@ void LinearSU::normalSearch() {
         assert(nbSatisfiable == 0);
         // If no model was found then the MaxSAT formula is unsatisfiable
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       } else {
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
     }
   }
+
+  return _ERROR_;
 }
 
 // Public search method
-void LinearSU::search() {
+StatusCode LinearSU::search() {
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_)
     is_bmo = isBMO();
@@ -274,11 +276,11 @@ void LinearSU::search() {
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
     if (bmoMode && is_bmo)
-      bmoSearch();
+      return bmoSearch();
     else
-      normalSearch();
+      return normalSearch();
   } else
-    normalSearch();
+    return normalSearch();
 }
 
 /************************************************************************************************
@@ -305,6 +307,8 @@ Solver *LinearSU::rebuildSolver(uint64_t min_weight) {
   seen.growTo(maxsat_formula->nVars(), false);
 
   Solver *S = newSATSolver();
+
+  reserveSATVariables(S, maxsat_formula->nVars());
 
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);

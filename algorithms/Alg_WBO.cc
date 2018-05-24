@@ -68,6 +68,8 @@ Solver *WBO::rebuildWeightSolver(int strategy) {
 
   Solver *S = newSATSolver();
 
+  reserveSATVariables(S, maxsat_formula->nVars());
+
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);
 
@@ -150,6 +152,8 @@ Solver *WBO::rebuildSolver() {
 
   Solver *S = newSATSolver();
 
+  reserveSATVariables(S, maxsat_formula->nVars());
+
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);
 
@@ -220,6 +224,8 @@ Solver *WBO::rebuildSolver() {
 Solver *WBO::rebuildHardSolver() {
 
   Solver *S = newSATSolver();
+
+  reserveSATVariables(S, maxsat_formula->nVars());
 
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);
@@ -501,7 +507,7 @@ void WBO::encodeEO(vec<Lit> &lits) {
   |    * 'sumSizeCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void WBO::relaxCore(vec<Lit> &conflict, uint64_t weightCore,
+void WBO::relaxCore(const vec<Lit> &conflict, uint64_t weightCore,
                     vec<Lit> &assumps) {
 
   assert(conflict.size() > 0);
@@ -569,7 +575,7 @@ void WBO::relaxCore(vec<Lit> &conflict, uint64_t weightCore,
   |      * Assumes that 'conflict' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t WBO::computeCostCore(vec<Lit> &conflict) {
+uint64_t WBO::computeCostCore(const vec<Lit> &conflict) {
 
   assert(conflict.size() != 0);
 
@@ -794,7 +800,7 @@ void WBO::symmetryBreaking() {
   |     by 1. Otherwise, 'nbCores' is increased by 1.
   |
   |________________________________________________________________________________________________@*/
-void WBO::unsatSearch() {
+StatusCode WBO::unsatSearch() {
 
   assert(assumptions.size() == 0);
 
@@ -804,18 +810,19 @@ void WBO::unsatSearch() {
   if (res == l_False) {
     nbCores++;
     printAnswer(_UNSATISFIABLE_);
-    exit(_UNSATISFIABLE_);
+    return _UNSATISFIABLE_;
   } else if (res == l_True) {
     nbSatisfiable++;
     uint64_t cost = computeCostModel(solver->model);
     assert(cost <= ubCost);
     ubCost = cost;
     saveModel(solver->model);
-    printf("o %" PRIu64 "\n", ubCost);
+    printBound(ubCost);
   }
 
   delete solver;
   solver = NULL;
+  return _SATISFIABLE_;
 }
 
 /*_________________________________________________________________________________________________
@@ -843,7 +850,7 @@ void WBO::unsatSearch() {
   |    * 'nbSatisfiable' is updated.
   |    * 'nbCores' is updated.
   |________________________________________________________________________________________________@*/
-void WBO::weightSearch() {
+StatusCode WBO::weightSearch() {
 
   assert(weightStrategy == _WEIGHT_NORMAL_ ||
          weightStrategy == _WEIGHT_DIVERSIFY_);
@@ -880,24 +887,24 @@ void WBO::weightSearch() {
         if (lbCost < ubCost) {
           ubCost = lbCost;
           saveModel(solver->model);
-          printf("o %" PRIu64 "\n", lbCost);
+          printBound(lbCost);
         }
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       } else {
         updateCurrentWeight(weightStrategy);
         uint64_t cost = computeCostModel(solver->model);
         if (cost < ubCost) {
           ubCost = cost;
           saveModel(solver->model);
-          printf("o %" PRIu64 "\n", ubCost);
+          printBound(ubCost);
         }
 
         if (lbCost == ubCost) {
           if (verbosity > 0)
             printf("c LB = UB\n");
           printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          return _OPTIMUM_;
         }
 
         delete solver;
@@ -926,7 +933,7 @@ void WBO::weightSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void WBO::normalSearch() {
+StatusCode WBO::normalSearch() {
 
   unsatSearch();
 
@@ -950,7 +957,7 @@ void WBO::normalSearch() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       relaxCore(solver->conflict, coreCost, assumptions);
@@ -962,16 +969,16 @@ void WBO::normalSearch() {
       nbSatisfiable++;
       ubCost = computeCostModel(solver->model);
       assert(lbCost == ubCost);
-      printf("o %" PRIu64 "\n", lbCost);
+      printBound(lbCost);
       saveModel(solver->model);
       printAnswer(_OPTIMUM_);
-      exit(_OPTIMUM_);
+      return _OPTIMUM_;
     }
   }
 }
 
 // Public search method
-void WBO::search() {
+StatusCode WBO::search() {
   //  nbInitialVariables = maxsat_formula->nVars();
 
   // If the maximum weight of the soft clauses is 1 then the problem is
@@ -988,10 +995,13 @@ void WBO::search() {
 
   if (maxsat_formula->getProblemType() == _UNWEIGHTED_ ||
       weightStrategy == _WEIGHT_NONE_)
-    normalSearch();
+    return normalSearch();
   else if (weightStrategy == _WEIGHT_NORMAL_ ||
            weightStrategy == _WEIGHT_DIVERSIFY_)
-    weightSearch();
+    return weightSearch();
+  
+  // this line should not be reached
+  return _ERROR_;
 }
 
 /************************************************************************************************

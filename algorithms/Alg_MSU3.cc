@@ -56,13 +56,16 @@ using namespace openwbo;
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void MSU3::MSU3_iterative() {
+StatusCode MSU3::MSU3_iterative() {
 
   if (encoding != _CARD_TOTALIZER_) {
-    printf("Error: Currently algorithm MSU3 with iterative encoding only "
-           "supports the totalizer encoding.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: Currently algorithm MSU3 with iterative encoding only "
+             "supports the totalizer encoding.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "MSU3 only supports totalizer");
+    return _UNKNOWN_;
   }
 
   lbool res = l_True;
@@ -85,7 +88,7 @@ void MSU3::MSU3_iterative() {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       saveModel(solver->model);
-      printf("o %" PRIu64 "\n", newCost);
+      printBound(newCost);
 
       ubCost = newCost;
 
@@ -95,7 +98,7 @@ void MSU3::MSU3_iterative() {
       } else {
         assert(lbCost == newCost);
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
     }
 
@@ -107,7 +110,7 @@ void MSU3::MSU3_iterative() {
 
       if (nbSatisfiable == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       if (lbCost == ubCost) {
@@ -115,14 +118,14 @@ void MSU3::MSU3_iterative() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       sumSizeCores += solver->conflict.size();
 
       if (solver->conflict.size() == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       joinObjFunction.clear();
@@ -169,29 +172,36 @@ void MSU3::MSU3_iterative() {
         assumptions.push(encodingAssumptions[i]);
     }
   }
+  return _ERROR_;
 }
 
 // Public search method
-void MSU3::search() {
+StatusCode MSU3::search() {
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    printf("Error: Currently algorithm MSU3 does not support weighted MaxSAT "
-           "instances.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: Currently algorithm MSU3 does not support weighted "
+             "MaxSAT instances.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "MSU3 does not support weighted");
+    return _UNKNOWN_;
   }
 
   if (incremental_strategy == _INCREMENTAL_ITERATIVE_) {
     if (encoding != _CARD_TOTALIZER_) {
-      printf("Error: Currently iterative encoding in PartMSU3 only "
+      if(print) {
+        printf("Error: Currently iterative encoding in PartMSU3 only "
              "supports the Totalizer encoding.\n");
-      printf("s UNKNOWN\n");
-      exit(_ERROR_);
+        printf("s UNKNOWN\n");
+      }
+      throw MaxSATException(__FILE__, __LINE__, "PartMSU3 only supports Totalizer");
+      return _UNKNOWN_;
     }
   }
 
   printConfiguration();
-  MSU3_iterative();
+  return MSU3_iterative();
 }
 
 /************************************************************************************************
@@ -212,6 +222,8 @@ void MSU3::search() {
 Solver *MSU3::rebuildSolver() {
 
   Solver *S = newSATSolver();
+
+  reserveSATVariables(S, maxsat_formula->nVars());
 
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);

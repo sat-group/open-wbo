@@ -27,6 +27,8 @@
 
 #include "MaxSAT.h"
 
+#include <sstream>
+
 using namespace openwbo;
 
 /************************************************************************************************
@@ -35,9 +37,10 @@ using namespace openwbo;
  //
  ************************************************************************************************/
 
-void MaxSAT::search() {
-  printf("Error: Invalid MaxSAT algoritm.\n");
-  exit(_ERROR_);
+StatusCode MaxSAT::search() {
+  if(print) printf("Error: Invalid MaxSAT algoritm.\n");
+  throw MaxSATException(__FILE__, __LINE__, "Did not implement MaxSAT search");
+  return _ERROR_;
 }
 
 void MaxSAT::setInitialTime(double initial) {
@@ -69,6 +72,18 @@ void MaxSAT::newSATVariable(Solver *S) {
   ((NSPACE::SimpSolver *)S)->newVar();
 #else
   S->newVar();
+#endif
+}
+
+// Makes sure the underlying SAT solver has the given amount of variables
+// reserved.
+void MaxSAT::reserveSATVariables(Solver *S, unsigned maxVariable) {
+#ifdef SAT_HAS_RESERVATION
+#ifdef SIMP
+  ((NSPACE::SimpSolver *)S)->reserveVars(maxVariable);
+#else
+  S->reserveVars(maxVariable);
+#endif
 #endif
 }
 
@@ -330,46 +345,41 @@ void MaxSAT::blockModel(Solver *solver) {
   solver->addClause(blocking);
 }
 
+void MaxSAT::printBound(int64_t bound)
+{
+  if(!print) return;
+
+  // print bound only, if its below the hard weight
+  if( bound < (int64_t)maxsat_formula->getHardWeight() ) printf("o %" PRId64 "\n", bound);
+}
+
 // Prints the best satisfying model. Assumes that 'model' is not empty.
 void MaxSAT::printModel() {
 
   assert(model.size() != 0);
 
-  if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+  std::stringstream s;
+  s << "v ";
 
-    printf("v ");
+  if (maxsat_formula->getFormat() == _FORMAT_PB_) {
     for (int i = 0; i < model.size(); i++) {
       indexMap::const_iterator iter = maxsat_formula->getIndexToName().find(i);
       if (iter != maxsat_formula->getIndexToName().end()) {
         if (model[i] == l_False)
-          printf("-");
-        printf("%s ", iter->second.c_str());
+          s << "-";
+        s << iter->second.c_str() << " ";
       }
     }
-    printf("\n");
-
-    // printf("v ");
-    // for (int i = 0; i < model.size(); i++) {
-    //   indexMap::const_iterator iter =
-    //   maxsat_formula->getIndexToName().find(i); if (iter !=
-    //   maxsat_formula->getIndexToName().end()) {
-    //     if (model[i] == l_False) printf("+1 %s = 0
-    //     ;\n",iter->second.c_str()); else printf("+1 %s = 1
-    //     ;\n",iter->second.c_str());
-    //   }
-    // }
-
   } else {
-
-    printf("v ");
     for (int i = 0; i < model.size(); i++) {
       if (model[i] == l_True)
-        printf("%d ", i + 1);
+        s << i+1 << " ";
       else
-        printf("%d ", -(i + 1));
+        s << -(i+1) << " ";
     }
-    printf("\n");
   }
+
+  printf("%s\n", s.str().c_str());
 }
 
 // Prints search statistics.
@@ -394,11 +404,15 @@ void MaxSAT::printStats() {
 
 // Prints the corresponding answer.
 void MaxSAT::printAnswer(int type) {
-  if (verbosity > 0)
+  if (verbosity > 0 && print)
     printStats();
 
   if (type == _UNKNOWN_ && model.size() > 0)
     type = _SATISFIABLE_;
+
+  // store type in member variable
+  searchStatus = (StatusCode)type;
+  if(!print) return;
 
   switch (type) {
   case _SATISFIABLE_:

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+PROJECT=open-wbo
+
+# build the solver
+cd code/"$PROJECT"
+make open-wbo_release SOLVER=riss 2>&1
+
+# move the solver into the bin directory
+cp open-wbo_release ../bin/

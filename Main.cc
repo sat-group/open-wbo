@@ -294,11 +294,19 @@ int main(int argc, char **argv) {
     S->setPrintModel(printmodel);
     S->setInitialTime(initial_time);
     mxsolver = S;
-    mxsolver->search();
+    mxsolver->setPrint(true);
 
+    int ret = (int)mxsolver->search();
+    delete S;
+    return ret;
   } catch (OutOfMemoryException &) {
     sleep(1);
     printf("c Error: Out of memory.\n");
+    printf("s UNKNOWN\n");
+    exit(_ERROR_);
+  } catch(MaxSATException &e) {
+    sleep(1);
+    printf("c Error: MaxSAT Exception: %s\n", e.getMsg());
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }

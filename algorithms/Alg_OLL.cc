@@ -97,7 +97,7 @@ uint64_t OLL::findNextWeightDiversity(uint64_t weight,
   return nextWeight;
 }
 
-void OLL::unweighted() {
+StatusCode OLL::unweighted() {
   // printf("unweighted\n");
 
   // nbInitialVariables = nVars();
@@ -128,10 +128,10 @@ void OLL::unweighted() {
       if (maxsat_formula->getFormat() == _FORMAT_PB_) {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", newCost + off_set);
+          printBound(newCost + off_set);
         }
       } else
-        printf("o %" PRId64 "\n", newCost + off_set);
+        printBound(newCost + off_set);
 
       ubCost = newCost;
 
@@ -140,10 +140,10 @@ void OLL::unweighted() {
           if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
               maxsat_formula->getObjFunction() == NULL) {
             printAnswer(_SATISFIABLE_);
-            exit(_SATISFIABLE_);
+            return _SATISFIABLE_;
           } else {
             printAnswer(_OPTIMUM_);
-            exit(_OPTIMUM_);
+            return _OPTIMUM_;
           }
         }
 
@@ -152,7 +152,7 @@ void OLL::unweighted() {
       } else {
         assert(lbCost == newCost);
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
     }
 
@@ -164,7 +164,7 @@ void OLL::unweighted() {
 
       if (nbSatisfiable == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       if (lbCost == ubCost) {
@@ -172,7 +172,7 @@ void OLL::unweighted() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       sumSizeCores += solver->conflict.size();
@@ -294,7 +294,7 @@ void OLL::unweighted() {
   }
 }
 
-void OLL::weighted() {
+StatusCode OLL::weighted() {
   // nbInitialVariables = nVars();
   lbool res = l_True;
   initRelaxation();
@@ -327,10 +327,10 @@ void OLL::weighted() {
         if (maxsat_formula->getFormat() == _FORMAT_PB_) {
           // optimization problem
           if (maxsat_formula->getObjFunction() != NULL) {
-            printf("o %" PRId64 "\n", newCost + off_set);
+            printBound(newCost + off_set);
           }
         } else
-          printf("o %" PRId64 "\n", newCost + off_set);
+          printBound(newCost + off_set);
         ubCost = newCost;
       }
 
@@ -395,7 +395,7 @@ void OLL::weighted() {
         } else {
           assert(lbCost == newCost);
           printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          return _OPTIMUM_;
         }
       }
     }
@@ -432,7 +432,7 @@ void OLL::weighted() {
 
       if (nbSatisfiable == 0) {
         printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
       }
 
       if (lbCost == ubCost) {
@@ -440,7 +440,7 @@ void OLL::weighted() {
         if (verbosity > 0)
           printf("c LB = UB\n");
         printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        return _OPTIMUM_;
       }
 
       sumSizeCores += solver->conflict.size();
@@ -756,22 +756,25 @@ void OLL::weighted() {
   }
 }
 
-void OLL::search() {
+StatusCode OLL::search() {
 
   if (encoding != _CARD_TOTALIZER_) {
-    printf("Error: Currently algorithm MSU3 with iterative encoding only "
-           "supports the totalizer encoding.\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
+    if(print) {
+      printf("Error: Currently algorithm MSU3 with iterative encoding only "
+             "supports the totalizer encoding.\n");
+      printf("s UNKNOWN\n");
+    }
+    throw MaxSATException(__FILE__, __LINE__, "MSU3 only supports totalizer");
+    return _UNKNOWN_;
   }
 
   printConfiguration();
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
     // FIXME: consider lexicographical optimization for weighted problems
-    weighted();
+    return weighted();
   } else
-    unweighted();
+    return unweighted();
 }
 
 /************************************************************************************************
@@ -792,6 +795,8 @@ void OLL::search() {
 Solver *OLL::rebuildSolver() {
 
   Solver *S = newSATSolver();
+
+  reserveSATVariables(S, maxsat_formula->nVars());
 
   for (int i = 0; i < maxsat_formula->nVars(); i++)
     newSATVariable(S);

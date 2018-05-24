@@ -65,7 +65,7 @@ public:
       delete solver;
   }
 
-  void search(); // WBO search.
+  StatusCode search(); // WBO search.
 
 protected:
   // Rebuild MaxSAT solver
@@ -85,9 +85,9 @@ protected:
   // Utils for core management
   //
   void encodeEO(vec<Lit> &lits); // Encodes exactly one constraint.
-  void relaxCore(vec<Lit> &conflict, uint64_t weightCore,
+  void relaxCore(const vec<Lit> &conflict, uint64_t weightCore,
                  vec<Lit> &assumps);            // Relaxes a core.
-  uint64_t computeCostCore(vec<Lit> &conflict); // Computes the cost of a core.
+  uint64_t computeCostCore(const vec<Lit> &conflict); // Computes the cost of a core.
 
   // Symmetry breaking methods
   //
@@ -97,9 +97,9 @@ protected:
 
   // WBO search
   //
-  void unsatSearch();  // Search using only hard clauses.
-  void weightSearch(); // Search using weight-based methods.
-  void normalSearch(); // Original WBO search.
+  StatusCode unsatSearch();  // Search using only hard clauses.
+  StatusCode weightSearch(); // Search using weight-based methods.
+  StatusCode normalSearch(); // Original WBO search.
 
   // Other
   // Initializes assumptions and core extraction.
