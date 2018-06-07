@@ -1,3 +1,4 @@
+
 /*!
  * \author Ruben Martins - ruben@sat.inesc-id.pt
  *
@@ -44,6 +45,7 @@
 #include "encodings/Enc_MTotalizer.h"
 #include "encodings/Enc_SWC.h"
 #include "encodings/Enc_Totalizer.h"
+#include "encodings/Enc_Adder.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -111,6 +113,8 @@ public:
   void encodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
   // Update the rhs of an already existent pseudo-Boolean constraint.
   void updatePB(Solver *S, uint64_t rhs);
+  // Predicts the number of clauses needed for the encoding
+  int predictPB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
 
   // Incremental PB encodings:
   //
@@ -173,6 +177,7 @@ protected:
   CNetworks cnetworks;
   MTotalizer mtotalizer;
   Totalizer totalizer;
+  Adder adder;
 
   // PB encodings
   SWC swc;

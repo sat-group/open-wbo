@@ -3,7 +3,7 @@
  *
  * @section LICENSE
  *
- * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
+ * Open-WBO, Copyright (c) 2013-2018, Ruben Martins, Vasco Manquinho, Ines Lynce
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,7 @@ void Encoder::encodeAMO(Solver *S, vec<Lit> &lits) {
     break;
 
   default:
-    printf("Error: Invalid at-most-one encoding.\n");
+    printf("c Error: Invalid at-most-one encoding.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
@@ -79,7 +79,7 @@ void Encoder::encodeCardinality(Solver *S, vec<Lit> &lits, int64_t rhs) {
     break;
 
   default:
-    printf("Error: Invalid cardinality encoding.\n");
+    printf("c Error: Invalid cardinality encoding.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
@@ -90,7 +90,7 @@ void Encoder::addCardinality(Solver *S, Encoder &enc, int64_t rhs) {
       enc.cardinality_encoding == _CARD_TOTALIZER_) {
     totalizer.add(S, enc.totalizer, rhs);
   } else {
-    printf("Error: Cardinality encoding does not support incrementality.\n");
+    printf("c Error: Cardinality encoding does not support incrementality.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
@@ -113,7 +113,7 @@ void Encoder::updateCardinality(Solver *S, int64_t rhs) {
     break;
 
   default:
-    printf("Error: Invalid cardinality encoding.\n");
+    printf("c Error: Invalid cardinality encoding.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
@@ -135,7 +135,7 @@ void Encoder::buildCardinality(Solver *S, vec<Lit> &lits, int64_t rhs) {
     break;
 
   default:
-    printf("Error: Cardinality encoding does not support incrementality.\n");
+    printf("c Error: Cardinality encoding does not support incrementality.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
@@ -163,7 +163,7 @@ void Encoder::incUpdateCardinality(Solver *S, vec<Lit> &join, vec<Lit> &lits,
     break;
 
   default:
-    printf("Error: Cardinality encoding does not support incrementality.\n");
+    printf("c Error: Cardinality encoding does not support incrementality.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
@@ -177,7 +177,7 @@ void Encoder::joinEncoding(Solver *S, vec<Lit> &lits, int64_t rhs) {
     break;
 
   default:
-    printf("Error: Cardinality encoding does not support incrementality.\n");
+    printf("c Error: Cardinality encoding does not support incrementality.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
@@ -207,12 +207,45 @@ void Encoder::encodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     gte.encode(S, lits_copy, coeffs_copy, rhs);
     break;
 
+  case _PB_ADDER_:
+    adder.encode(S, lits_copy, coeffs_copy, rhs);
+    break;
+
+  default:
+    printf("c Error: Invalid PB encoding.\n");
+    printf("s UNKNOWN\n");
+    exit(_ERROR_);
+  }
+}
+
+int Encoder::predictPB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
+                       uint64_t rhs) {
+
+  vec<Lit> lits_copy;
+  lits.copyTo(lits_copy);
+  vec<uint64_t> coeffs_copy;
+  coeffs.copyTo(coeffs_copy);
+
+  switch (pb_encoding) {
+  case _PB_SWC_:
+    return -1;
+    break;
+
+  case _PB_GTE_:
+    return gte.predict(S, lits_copy, coeffs_copy, rhs);
+    break;
+
+  case _PB_ADDER_:
+    return -1;
+    break;
+
   default:
     printf("Error: Invalid PB encoding.\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
 }
+
 
 // Manages the update of PB encodings.
 void Encoder::updatePB(Solver *S, uint64_t rhs) {
@@ -224,6 +257,10 @@ void Encoder::updatePB(Solver *S, uint64_t rhs) {
 
   case _PB_GTE_:
     gte.update(S, rhs);
+    break;
+
+  case _PB_ADDER_:
+    adder.update(S, rhs);
     break;
 
   default:

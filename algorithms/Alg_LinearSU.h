@@ -102,13 +102,16 @@ protected:
   StatusCode bmoSearch();    // Linear search algorithm with lexicographical order.
 
   // Greater than comparator.
-  bool static greaterThan(int i, int j) { return (i > j); }
+  bool static greaterThan(uint64_t i, uint64_t j) { return (i > j); }
 
   // Other
   void initRelaxation(); // Relaxes soft clauses.
 
   // Print LinearSU configuration.
   void print_LinearSU_configuration();
+
+  // savePhase
+  void savePhase(Solver * solver);
 
   Solver *solver;  // SAT Solver used as a black box.
   Encoder encoder; // Interface for the encoder of constraints to CNF.

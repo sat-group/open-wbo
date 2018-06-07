@@ -89,9 +89,9 @@ int main(int argc, char **argv) {
   printf(
       "c\nc Open-WBO:\t a Modular MaxSAT Solver -- based on %s (%s version)\n",
       SATVER, VER);
-  printf("c Version:\t 2017 -- Release: 2.0\n");
+  printf("c Version:\t 2018 -- Release: 2.1\n");
   printf("c Authors:\t Ruben Martins, Vasco Manquinho, Ines Lynce\n");
-  printf("c Contributors:\t Miguel Neves, Saurabh Joshi, Mikolas Janota\n");
+  printf("c Contributors:\t Miguel Neves, Saurabh Joshi, Norbert Manthey, Mikolas Janota\n");
   printf("c Contact:\t open-wbo@sat.inesc-id.pt -- "
          "http://sat.inesc-id.pt/open-wbo/\nc\n");
   try {
@@ -139,8 +139,8 @@ int main(int argc, char **argv) {
     IntOption amo("Encodings", "amo", "AMO encoding (0=Ladder).\n", 0,
                   IntRange(0, 0));
 
-    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE).\n", 1,
-                 IntRange(0, 0));
+    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE,2=Adder).\n", 1,
+                 IntRange(0, 2));
 
     IntOption formula("Open-WBO", "formula",
                       "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));

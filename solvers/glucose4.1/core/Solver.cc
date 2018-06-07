@@ -299,6 +299,7 @@ Solver::Solver(const Solver &s) :
     s.seen.memCopyTo(seen);
     s.permDiff.memCopyTo(permDiff);
     s.polarity.memCopyTo(polarity);
+    s.fixed_polarity.memCopyTo(polarity);
     s.decision.memCopyTo(decision);
     s.trail.memCopyTo(trail);
     s.order_heap.copyTo(order_heap);
@@ -384,6 +385,7 @@ Var Solver::newVar(bool sign, bool dvar) {
     seen.push(0);
     permDiff.push(0);
     polarity.push(sign);
+    fixed_polarity.push(false);
     forceUNSAT.push(0);
     decision.push();
     trail.capacity(v + 1);
@@ -661,7 +663,8 @@ void Solver::cancelUntil(int level) {
             Var x = var(trail[c]);
             assigns[x] = l_Undef;
             if(phase_saving > 1 || ((phase_saving == 1) && c > trail_lim.last())) {
-                polarity[x] = sign(trail[c]);
+                if (!fixed_polarity[x])
+                    polarity[x] = sign(trail[c]);
             }
             insertVarOrder(x);
         }

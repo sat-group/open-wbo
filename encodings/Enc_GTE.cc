@@ -171,7 +171,7 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
 
   // If the rhs is larger than INT32_MAX is not feasible to encode this
   // pseudo-Boolean constraint to CNF.
-  if (rhs >= INT32_MAX) {
+  if (rhs >= UINT64_MAX) {
     printf("c Overflow in the Encoding\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
@@ -194,7 +194,7 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     if (simp_coeffs[i] == 0)
       continue;
 
-    if (simp_coeffs[i] >= INT32_MAX) {
+    if (simp_coeffs[i] >= UINT64_MAX) {
       printf("c Overflow in the Encoding\n");
       printf("s UNKNOWN\n");
       exit(_ERROR_);
@@ -271,4 +271,169 @@ void GTE::update(Solver *S, uint64_t rhs) {
   /* ... PUT CODE HERE TO UPDATE THE RHS OF AN ALREADY EXISTING ENCODING ... */
 
   current_pb_rhs = rhs;
+}
+
+// TODO: refactor the code to reduce duplication for the predict methods
+
+// predict number of variables and clauses that this encode will generate
+Lit GTE::get_var_predict(Solver *S, wlit_mapt &oliterals, uint64_t weight) {
+  wlit_mapt::iterator it = oliterals.find(weight);
+  if (it == oliterals.end()) {
+    Lit v = mkLit(nb_current_variables, false);
+    nb_current_variables++;
+    oliterals[weight] = v;
+  }
+  return oliterals[weight];
+}
+
+bool GTE::predictEncodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
+                    wlit_mapt &oliterals) {
+
+
+  if (nb_clauses_expected >= _MAX_CLAUSES_)
+    return false;
+
+  if (iliterals.size() == 0 || k == 0)
+    return false;
+
+  if (iliterals.size() == 1) {
+    
+    oliterals.insert(
+        wlit_pairt(iliterals.front().weight, iliterals.front().lit));
+    return true;
+  }
+
+  unsigned int size = iliterals.size();
+
+  weightedlitst linputs, rinputs;
+  wlit_mapt loutputs, routputs;
+
+  unsigned int lsize = size >> 1;
+  weightedlitst::const_iterator myit = iliterals.begin();
+  weightedlitst::const_iterator myit1 = myit + lsize;
+  weightedlitst::const_iterator myit2 = iliterals.end();
+
+  linputs.insert(linputs.begin(), myit, myit1);
+  rinputs.insert(rinputs.begin(), myit1, myit2);
+
+  wlit_sumt wlit_sum;
+  uint64_t lk = std::accumulate(linputs.begin(), linputs.end(), 0, wlit_sum);
+  uint64_t rk = std::accumulate(rinputs.begin(), rinputs.end(), 0, wlit_sum);
+
+  lk = k >= lk ? lk : k;
+  rk = k >= rk ? rk : k;
+
+  bool result = predictEncodeLeq(lk, S, linputs, loutputs);
+  if (!result)
+    return result;
+  result = result && predictEncodeLeq(rk, S, rinputs, routputs);
+  if (!result)
+    return result;
+
+  {
+    assert(!loutputs.empty());
+    for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+         mit++) {
+      if (mit->first > k) {
+        get_var_predict(S, oliterals, k);
+        nb_clauses_expected++;
+        if (nb_clauses_expected >= _MAX_CLAUSES_)
+          return false;
+      } else {
+        get_var_predict(S, oliterals, mit->first);
+        nb_clauses_expected++;
+        if (nb_clauses_expected >= _MAX_CLAUSES_)
+          return false;
+      }
+
+    }
+  }
+
+  {
+    assert(!routputs.empty());
+    for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+         mit++) {
+      if (mit->first > k) {
+        get_var_predict(S, oliterals, k);
+        nb_clauses_expected++;
+        if (nb_clauses_expected >= _MAX_CLAUSES_)
+          return false;
+      } else {
+        get_var_predict(S, oliterals, mit->first);
+        nb_clauses_expected++;
+        if (nb_clauses_expected >= _MAX_CLAUSES_)
+          return false;
+      }
+
+    }
+  }
+
+  {
+    for (wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
+         lit++) {
+      for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
+           rit++) {
+        uint64_t tw = lit->first + rit->first;
+        if (tw > k) {
+          get_var_predict(S, oliterals, k);
+          nb_clauses_expected++;
+          if (nb_clauses_expected >= _MAX_CLAUSES_)
+            return false;
+        } else {
+          get_var_predict(S, oliterals, tw);
+          nb_clauses_expected++;
+          if (nb_clauses_expected >= _MAX_CLAUSES_)
+            return false;
+        }
+
+      }
+    }
+  }
+
+  return true;
+}
+
+int GTE::predict(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
+                 uint64_t rhs) {
+
+  vec<Lit> simp_lits;
+  vec<uint64_t> simp_coeffs;
+  lits.copyTo(simp_lits);
+  coeffs.copyTo(simp_coeffs);
+  lits.clear();
+  coeffs.clear();
+
+  nb_current_variables = S->nVars();
+
+  for (int i = 0; i < simp_lits.size(); i++) {
+    if (simp_coeffs[i] == 0)
+      continue;
+
+    if (simp_coeffs[i] >= INT64_MAX) {
+      return _MAX_CLAUSES_;
+    }
+
+    if (simp_coeffs[i] <= (unsigned)rhs) {
+      lits.push(simp_lits[i]);
+      coeffs.push(simp_coeffs[i]);
+    } else
+      nb_clauses_expected++;
+  }
+
+  if (lits.size() <= 1)
+    return nb_clauses_expected;
+  
+  weightedlitst iliterals;
+  for (int i = 0; i < lits.size(); i++) {
+    wlitt wl;
+    wl.lit = lits[i];
+    wl.weight = coeffs[i];
+    iliterals.push_back(wl);
+  }
+  less_than_wlitt lt_wlit;
+  std::sort(iliterals.begin(), iliterals.end(), lt_wlit);
+  wlit_mapt oliterals;
+  predictEncodeLeq(rhs + 1, S, iliterals, oliterals);
+  return nb_clauses_expected;
+
 }

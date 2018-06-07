@@ -89,6 +89,7 @@ StatusCode LinearSU::bmoSearch() {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
         saveModel(solver->model);
+        savePhase(solver);
         printBound(newCost + lbCost + off_set);
         ubCost = newCost + lbCost;
       } else {
@@ -212,6 +213,7 @@ StatusCode LinearSU::normalSearch() {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       saveModel(solver->model);
+      savePhase(solver);
       if (maxsat_formula->getFormat() == _FORMAT_PB_) {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
@@ -235,8 +237,18 @@ StatusCode LinearSU::normalSearch() {
 
       } else {
         if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-          if (!encoder.hasPBEncoding())
+          if (!encoder.hasPBEncoding()){
+            // check if GTE encoding will generate too many clauses
+            // TODO: generalize this to all PB encodings
+            if (encoder.getPBEncoding() == _PB_GTE_){
+              int expected_clauses = encoder.predictPB(solver, objFunction, coeffs, newCost-1);
+              if (expected_clauses >= _MAX_CLAUSES_) {
+                printf("c Warn: changing to Adder encoding.\n");
+                encoder.setPBEncoding(_PB_ADDER_);
+              } else printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
+            }
             encoder.encodePB(solver, objFunction, coeffs, newCost - 1);
+          }
           else
             encoder.updatePB(solver, newCost - 1);
         } else {
@@ -460,3 +472,25 @@ void LinearSU::print_LinearSU_configuration() {
     }
   }
 }
+
+ // save polarity from last model 
+ void LinearSU::savePhase(Solver * solver) {
+  
+  assert (solver->model.size() > 0);
+  assert (solver->model.size() >= maxsat_formula->nInitialVars());
+
+  // save the polarity of the original variables
+  for (int i = 0; i < maxsat_formula->nInitialVars(); i++){
+    solver->setPolarity(i, solver->model[i] == l_False);
+  }
+
+  // save the polarity of the relaxation variables
+  for (int i = 0; i < maxsat_formula->nSoft(); i++){
+    assert (maxsat_formula->getSoftClause(i).relaxation_vars.size() == 1);
+    maxsat_formula->getSoftClause(i).relaxation_vars[0];
+    int v = var(maxsat_formula->getSoftClause(i).relaxation_vars[0]);
+    assert (v < solver->model.size());
+    solver->setPolarity(v, solver->model[v] == l_False);
+  }
+
+ }

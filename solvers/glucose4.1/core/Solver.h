@@ -335,6 +335,7 @@ protected:
 
     vec<lbool>          assigns;          // The current assignments.
     vec<char>           polarity;         // The preferred polarity of each variable.
+    vec<char>           fixed_polarity;   // Open-WBO: fixed polarity for solution phase saving
     vec<char>           forceUNSAT;
     void                bumpForceUNSAT(Lit q); // Handles the forces
 
@@ -530,7 +531,7 @@ inline int      Solver::nVars         ()      const   { return vardata.size(); }
 inline int      Solver::nFreeVars     ()         { 
     int a = stats[dec_vars];
     return (int)(a) - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]); }
-inline void     Solver::setPolarity   (Var v, bool b) { polarity[v] = b; }
+inline void     Solver::setPolarity   (Var v, bool b) { polarity[v] = b; fixed_polarity[v] = true; }
 inline void     Solver::setDecisionVar(Var v, bool b) 
 { 
     if      ( b && !decision[v]) stats[dec_vars]++;
