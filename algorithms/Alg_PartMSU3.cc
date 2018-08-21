@@ -837,16 +837,16 @@ StatusCode PartMSU3::PartMSU3_binary() {
     }
 
     if (res == l_False) {
+      if (nbSatisfiable == 0 || solver->conflict.size() == 0) {
+        printAnswer(_UNSATISFIABLE_);
+        return _UNSATISFIABLE_;
+      }
+
       current_node->incrementLowerBound();
       lbCost++;
       nbCores++;
       if (verbosity > 0)
         printf("c LB : %-12" PRIu64 "\n", lbCost);
-
-      if (nbSatisfiable == 0) {
-        printAnswer(_UNSATISFIABLE_);
-        return _UNSATISFIABLE_;
-      }
 
       if (lbCost == ubCost) {
         assert(nbSatisfiable > 0);
@@ -857,11 +857,6 @@ StatusCode PartMSU3::PartMSU3_binary() {
       }
 
       sumSizeCores += solver->conflict.size();
-
-      if (solver->conflict.size() == 0) {
-        printAnswer(_UNSATISFIABLE_);
-        return _UNSATISFIABLE_;
-      }
 
       joinObjFunction.clear();
       for (int i = 0; i < solver->conflict.size(); i++) {
