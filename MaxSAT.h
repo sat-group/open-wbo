@@ -78,7 +78,9 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
+    print_soft = false;
     print = false;
+    unsat_soft_file = NULL;
   }
 
   MaxSAT() {
@@ -100,7 +102,9 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
+    print_soft = false;
     print = false;
+    unsat_soft_file = NULL;
   }
 
   virtual ~MaxSAT() {
@@ -165,6 +169,16 @@ public:
   void setPrint(bool doPrint) { print = doPrint; }
   bool getPrint() { return print; }
 
+  void setPrintSoft(const char* file) { 
+    if (file != NULL){
+      unsat_soft_file = (char*)malloc(sizeof(char) * (sizeof(file)));
+      strcpy(unsat_soft_file,file) ; 
+      print_soft = true;
+    }
+  }
+  bool isPrintSoft() { return print_soft; }
+  char * getPrintSoftFilename() { return unsat_soft_file; }
+
   /** return status of current search
    *
    *  This method helps to extract the status in case the solver is used as a
@@ -224,6 +238,8 @@ protected:
   int verbosity;      // Controls the verbosity of the solver.
   bool print_model;   // Controls if the model is printed at the end.
   bool print;         // Controls if data should be printed at all
+  bool print_soft;    // Controls if the unsatified soft clauses are printed at the end.
+  char * unsat_soft_file;  // Name of the file where the unsatisfied soft clauses will be printed.
 
   // Different weights that corresponds to each function in the BMO algorithm.
   std::vector<uint64_t> orderWeights;
@@ -240,6 +256,8 @@ protected:
   void printBound(int64_t bound); // Print the current bound.
   void printModel(); // Print the best satisfying model.
   void printStats(); // Print search statistics.
+  std::string printSoftClause(int id); // Prints a soft clause.
+  void printUnsatisfiedSoftClauses(); // Prints unsatisfied soft clauses.
 
   // Greater than comparator.
   bool static greaterThan(uint64_t i, uint64_t j) { return (i > j); }

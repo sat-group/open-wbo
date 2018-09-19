@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
   printf(
       "c\nc Open-WBO:\t a Modular MaxSAT Solver -- based on %s (%s version)\n",
       SATVER, VER);
-  printf("c Version:\t 2018 -- Release: 2.1\n");
+  printf("c Version:\t September 2018 -- Release: 2.1\n");
   printf("c Authors:\t Ruben Martins, Vasco Manquinho, Ines Lynce\n");
   printf("c Contributors:\t Miguel Neves, Saurabh Joshi, Norbert Manthey, Mikolas Janota\n");
   printf("c Contact:\t open-wbo@sat.inesc-id.pt -- "
@@ -107,6 +107,8 @@ int main(int argc, char **argv) {
 #endif
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
+
+    StringOption printsoft("Open-WBO", "print-unsat-soft", "Print unsatisfied soft claues in the optimal assignment.\n", NULL);
 
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
@@ -292,6 +294,7 @@ int main(int argc, char **argv) {
     if (S->getMaxSATFormula() == NULL)
       S->loadFormula(maxsat_formula);
     S->setPrintModel(printmodel);
+    S->setPrintSoft((const char *)printsoft);
     S->setInitialTime(initial_time);
     mxsolver = S;
     mxsolver->setPrint(true);

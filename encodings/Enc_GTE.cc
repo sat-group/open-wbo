@@ -84,8 +84,8 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
   init_wlit.lit = lit_Undef;
   init_wlit.weight=0;*/
   wlit_sumt wlit_sum;
-  uint64_t lk = std::accumulate(linputs.begin(), linputs.end(), 0, wlit_sum);
-  uint64_t rk = std::accumulate(rinputs.begin(), rinputs.end(), 0, wlit_sum);
+  uint64_t lk = std::accumulate(linputs.begin(), linputs.end(), uint64_t(0), wlit_sum);
+  uint64_t rk = std::accumulate(rinputs.begin(), rinputs.end(), uint64_t(0), wlit_sum);
 
   lk = k >= lk ? lk : k;
   rk = k >= rk ? rk : k;
@@ -317,8 +317,8 @@ bool GTE::predictEncodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals
   rinputs.insert(rinputs.begin(), myit1, myit2);
 
   wlit_sumt wlit_sum;
-  uint64_t lk = std::accumulate(linputs.begin(), linputs.end(), 0, wlit_sum);
-  uint64_t rk = std::accumulate(rinputs.begin(), rinputs.end(), 0, wlit_sum);
+  uint64_t lk = std::accumulate(linputs.begin(), linputs.end(), uint64_t(0), wlit_sum);
+  uint64_t rk = std::accumulate(rinputs.begin(), rinputs.end(), uint64_t(0), wlit_sum);
 
   lk = k >= lk ? lk : k;
   rk = k >= rk ? rk : k;

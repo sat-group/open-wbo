@@ -383,6 +383,55 @@ void MaxSAT::printModel() {
   printf("%s\n", s.str().c_str());
 }
 
+std::string MaxSAT::printSoftClause(int id){
+  assert (maxsat_formula->getFormat() == _FORMAT_MAXSAT_);
+  assert (id < maxsat_formula->nSoft());
+
+  std::stringstream ss;
+  ss << maxsat_formula->getSoftClause(id).weight << " ";
+
+  for (int j = 0; j < maxsat_formula->getSoftClause(id).clause.size(); j++){
+    if (sign(maxsat_formula->getSoftClause(id).clause[j]))
+      ss << "-";
+    ss << (var(maxsat_formula->getSoftClause(id).clause[j])+1) << " ";
+  }
+  ss << "0\n";
+  return ss.str();
+}
+
+void MaxSAT::printUnsatisfiedSoftClauses() {
+  assert (model.size() != 0);
+
+  std::stringstream s;
+  int soft_size = 0;
+  
+  for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+    bool unsatisfied = true;
+    for (int j = 0; j < maxsat_formula->getSoftClause(i).clause.size(); j++) {
+
+      assert(var(maxsat_formula->getSoftClause(i).clause[j]) <
+             model.size());
+      if ((sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           model[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_False) ||
+          (!sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           model[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_True)) {
+        unsatisfied = false;
+        break;
+      }
+    }
+
+    if (unsatisfied) {
+      s << printSoftClause(i);
+      soft_size++;
+    }
+  }
+  FILE * file = fopen (getPrintSoftFilename(),"w");
+  fprintf(file,"p cnf %d %d\n",maxsat_formula->nInitialVars(),soft_size);
+  fprintf(file,"%s", s.str().c_str());
+}
+
 // Prints search statistics.
 void MaxSAT::printStats() {
   double totalTime = cpuTime();
@@ -420,11 +469,15 @@ void MaxSAT::printAnswer(int type) {
     printf("s SATISFIABLE\n");
     if (print_model)
       printModel();
+    if (print_soft)
+      printUnsatisfiedSoftClauses();
     break;
   case _OPTIMUM_:
     printf("s OPTIMUM FOUND\n");
     if (print_model)
       printModel();
+    if (print_soft)
+      printUnsatisfiedSoftClauses();
     break;
   case _UNSATISFIABLE_:
     printf("s UNSATISFIABLE\n");
