@@ -83,6 +83,59 @@ static void SIGINT_exit(int signum) {
 }
 
 //=================================================================================================
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+void limitMemory(uint64_t max_mem_mb)
+{
+// FIXME: OpenBSD does not support RLIMIT_AS. Not sure how well RLIMIT_DATA works instead.
+#if defined(__OpenBSD__)
+#define RLIMIT_AS RLIMIT_DATA
+#endif
+
+    // Set limit on virtual memory:
+    if (max_mem_mb != 0){
+        rlim_t new_mem_lim = (rlim_t)max_mem_mb * 1024*1024;
+        rlimit rl;
+        getrlimit(RLIMIT_AS, &rl);
+        if (rl.rlim_max == RLIM_INFINITY || new_mem_lim < rl.rlim_max){
+            rl.rlim_cur = new_mem_lim;
+            if (setrlimit(RLIMIT_AS, &rl) == -1)
+                printf("c WARNING! Could not set resource limit: Virtual memory.\n");
+        }
+    }
+
+#if defined(__OpenBSD__)
+#undef RLIMIT_AS
+#endif
+}
+#else
+void limitMemory(uint64_t /*max_mem_mb*/)
+{
+    printf("c WARNING! Memory limit not supported on this architecture.\n");
+}
+#endif
+
+
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+void limitTime(uint32_t max_cpu_time)
+{
+    if (max_cpu_time != 0){
+        rlimit rl;
+        getrlimit(RLIMIT_CPU, &rl);
+        if (rl.rlim_max == RLIM_INFINITY || (rlim_t)max_cpu_time < rl.rlim_max){
+            rl.rlim_cur = max_cpu_time;
+            if (setrlimit(RLIMIT_CPU, &rl) == -1)
+                printf("c WARNING! Could not set resource limit: CPU-time.\n");
+        }
+    }
+}
+#else
+void limitTime(uint32_t /*max_cpu_time*/)
+{
+    printf("c WARNING! CPU-time limit not supported on this architecture.\n");
+}
+#endif
+
+//=================================================================================================
 // Main:
 
 int main(int argc, char **argv) {
@@ -113,6 +166,14 @@ int main(int argc, char **argv) {
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
                         IntRange(0, 1));
+
+    IntOption cpu_lim("Open-WBO", "cpu-lim",
+                      "Limit on CPU time allowed in seconds.\n", 0,
+                      IntRange(0, INT32_MAX));
+
+    IntOption mem_lim("Open-WBO", "mem-lim",
+                      "Limit on memory usage in megabytes.\n", 0,
+                      IntRange(0, INT32_MAX));
 
     IntOption algorithm("Open-WBO", "algorithm",
                         "Search algorithm "
@@ -160,6 +221,10 @@ int main(int argc, char **argv) {
         IntRange(0, INT32_MAX));
 
     parseOptions(argc, argv, true);
+
+    // Try to set resource limits:
+    if (cpu_lim != 0) limitTime(cpu_lim);
+    if (mem_lim != 0) limitMemory(mem_lim);
 
     double initial_time = cpuTime();
     MaxSAT *S = NULL;
