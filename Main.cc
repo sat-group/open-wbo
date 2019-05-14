@@ -341,18 +341,18 @@ int main(int argc, char **argv) {
 
       if (maxsat_formula->getProblemType() == _UNWEIGHTED_) {
         // Unweighted
-        S = new PartMSU3(_VERBOSITY_MINIMAL_, _PART_BINARY_, RES_GRAPH,
+        S = new PartMSU3(verbosity, _PART_BINARY_, RES_GRAPH,
                          cardinality);
         S->loadFormula(maxsat_formula);
 
         if (((PartMSU3 *)S)->chooseAlgorithm() == _ALGORITHM_MSU3_) {
           // FIXME: possible memory leak
-          S = new MSU3(_VERBOSITY_MINIMAL_);
+          S = new MSU3(verbosity);
         }
 
       } else {
         // Weighted
-        S = new OLL(_VERBOSITY_MINIMAL_, cardinality);
+        S = new OLL(verbosity, cardinality);
       }
     }
 
