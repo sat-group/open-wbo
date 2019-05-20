@@ -263,9 +263,7 @@ int main(int argc, char **argv) {
     signal(SIGTERM, SIGINT_exit);
 
     if (argc == 1) {
-      printf("c Error: no filename.\n");
-      printf("s UNKNOWN\n");
-      exit(_ERROR_);
+      printf("c Warning: no filename.\n");
     }
 
     gzFile in = (argc == 1) ? gzdopen(0, "rb") : gzopen(argv[1], "rb");
@@ -341,18 +339,18 @@ int main(int argc, char **argv) {
 
       if (maxsat_formula->getProblemType() == _UNWEIGHTED_) {
         // Unweighted
-        S = new PartMSU3(_VERBOSITY_MINIMAL_, _PART_BINARY_, RES_GRAPH,
+        S = new PartMSU3(verbosity, _PART_BINARY_, RES_GRAPH,
                          cardinality);
         S->loadFormula(maxsat_formula);
 
         if (((PartMSU3 *)S)->chooseAlgorithm() == _ALGORITHM_MSU3_) {
           // FIXME: possible memory leak
-          S = new MSU3(_VERBOSITY_MINIMAL_);
+          S = new MSU3(verbosity);
         }
 
       } else {
         // Weighted
-        S = new OLL(_VERBOSITY_MINIMAL_, cardinality);
+        S = new OLL(verbosity, cardinality);
       }
     }
 
