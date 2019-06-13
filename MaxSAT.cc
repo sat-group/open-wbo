@@ -349,9 +349,7 @@ void MaxSAT::printBound(int64_t bound)
 {
   if(!print) return;
 
-  // print bound only, if its below the hard weight
-  // FIXME: possible issue for PB instances when bound is negative; in MaxSAT bound is always positive
-  if( bound < (int64_t)maxsat_formula->getHardWeight() ) printf("o %" PRId64 "\n", bound);
+  printf("o %" PRId64 "\n", bound);
 }
 
 // Prints the best satisfying model. Assumes that 'model' is not empty.
