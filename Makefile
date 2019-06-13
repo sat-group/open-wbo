@@ -17,6 +17,16 @@ DEPDIR     +=  ../../encodings ../../algorithms ../../graph ../../classifier
 MROOT      ?= $(PWD)/solvers/$(SOLVERDIR)
 LFLAGS     += -lgmpxx -lgmp
 CFLAGS     += -Wall -Wno-parentheses -std=c++11 -DNSPACE=$(NSPACE) -DSOLVERNAME=$(SOLVERNAME) -DVERSION=$(VERSION)
+ifeq ($(SANITIZER),asan)
+CFLAGS     += -fsanitize=address
+LFLAGS     += -fsanitize=address
+LFLAGS     += -fuse-ld=gold
+endif
+ifeq ($(SANITIZER),undef)
+CFLAGS     += -fsanitize=undefined -fsanitize-undefined-trap-on-error
+LFLAGS     += -fsanitize=undefined
+LFLAGS     += -fuse-ld=gold
+endif
 ifeq ($(VERSION),simp)
 DEPDIR     += simp
 CFLAGS     += -DSIMP=1 
