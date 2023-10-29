@@ -40,6 +40,7 @@
 #include "MaxTypes.h"
 #include "utils/System.h"
 #include <algorithm>
+#include <cstring>
 #include <map>
 #include <set>
 #include <utility>
@@ -171,7 +172,7 @@ public:
 
   void setPrintSoft(const char* file) { 
     if (file != NULL){
-      unsat_soft_file = (char*)malloc(sizeof(char) * (sizeof(file)));
+      unsat_soft_file = (char*)malloc(sizeof(char) * strlen(file));
       strcpy(unsat_soft_file,file) ; 
       print_soft = true;
     }
