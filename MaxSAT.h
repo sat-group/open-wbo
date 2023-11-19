@@ -172,14 +172,17 @@ public:
 
   void setPrintSoft(const char* file) { 
     if (file != NULL){
-      unsat_soft_file = (char*)malloc(sizeof(char) * strlen(file));
-      memset(unsat_soft_file, '\0', sizeof(char) * strlen(file));
-      strcpy(unsat_soft_file, file); 
+      unsat_soft_file = (char*)malloc(sizeof(char) * (strlen(file) + 1));
+      memset(unsat_soft_file, '\0', sizeof(char) * (strlen(file) + 1));
+      strcpy(unsat_soft_file, file);
+
       print_soft = true;
     }
   }
   bool isPrintSoft() { return print_soft; }
-  char * getPrintSoftFilename() { return unsat_soft_file; }
+  char * getPrintSoftFilename() {
+    return unsat_soft_file;
+  }
 
   /** return status of current search
    *
