@@ -173,7 +173,8 @@ public:
   void setPrintSoft(const char* file) { 
     if (file != NULL){
       unsat_soft_file = (char*)malloc(sizeof(char) * strlen(file));
-      strcpy(unsat_soft_file,file) ; 
+      memset(unsat_soft_file, '\0', sizeof(char) * strlen(file));
+      strcpy(unsat_soft_file, file); 
       print_soft = true;
     }
   }
